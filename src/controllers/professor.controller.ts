@@ -16,7 +16,7 @@ export default class ProfessorController {
   }
 
   // #pegabandeira
-  async listar(filtro: FilterQuery<Professor> = {}): Promise<Professor[]> {
+  async listar(filtro: FilterQuery<Professor> = { tipo: { $eq: 1 } }): Promise<Professor[]> {
     return await ProfessorRepository.listar(filtro);
   }
 
