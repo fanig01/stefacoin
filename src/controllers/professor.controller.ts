@@ -1,6 +1,7 @@
 import Professor from '../entities/professor.entity';
 import ProfessorRepository from '../repositories/professor.repository';
 import { FilterQuery } from '../utils/database/database';
+import BusinessException from '../utils/exceptions/business.exception';
 import Mensagem from '../utils/mensagem';
 import { Validador } from '../utils/utils';
 
@@ -26,6 +27,10 @@ export default class ProfessorController {
 
     Validador.validarParametros([{ nome }, { email }, { senha }]);
     professor.tipo = 1;
+    const existeProfessor = await ProfessorRepository.obter({ email: { $eq: email } });
+    if (existeProfessor) {
+      throw new BusinessException('Email já cadastrado');
+    }
 
     const id = await ProfessorRepository.incluir(professor);
 
