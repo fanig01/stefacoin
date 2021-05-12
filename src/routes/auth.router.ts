@@ -1,4 +1,5 @@
 import express, { NextFunction, Request, Response } from 'express';
+import AlunoController from '../controllers/aluno.controller';
 import AuthController from '../controllers/auth.controller';
 import ProfessorController from '../controllers/professor.controller';
 import Login from '../models/login.model';
@@ -26,7 +27,9 @@ router.post('/signup', async (req: Request, res: Response, next: NextFunction) =
       case 1:
         mensagem = await new ProfessorController().incluir(req.body);
         break;
-    
+      case 2:
+        mensagem = await new AlunoController().incluir(req.body);
+        break;
       default:
         throw new BusinessException('Tipo usuário não identificado');
     }

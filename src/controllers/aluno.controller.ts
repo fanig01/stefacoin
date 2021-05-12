@@ -1,6 +1,7 @@
 import Aluno from '../entities/aluno.entity';
 import AlunoRepository from '../repositories/aluno.repository';
 import { FilterQuery } from '../utils/database/database';
+import BusinessException from '../utils/exceptions/business.exception';
 import Mensagem from '../utils/mensagem';
 import { Validador } from '../utils/utils';
 
@@ -22,7 +23,13 @@ export default class AlunoController {
   // #pegabandeira
   async incluir(aluno: Aluno) {
     const { nome, formacao, idade, email, senha } = aluno;
+
     Validador.validarParametros([{ nome }, { formacao }, { idade }, { email }, { senha }]);
+    
+    const existeAluno = await AlunoRepository.obter({ email: { $eq: email } });
+    if (existeAluno) {
+      throw new BusinessException('Email já cadastrado');
+    }
     const id = await AlunoRepository.incluir(aluno);
     return new Mensagem('Aluno incluido com sucesso!', {
       id,
