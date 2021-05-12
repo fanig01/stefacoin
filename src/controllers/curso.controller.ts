@@ -28,27 +28,34 @@ export default class CursoController {
     if (existeCurso) {
       throw new BusinessException('Curso já existe');
     }
-
+    
     const tipoProfessor = await ProfessorRepository.obter({ tipo: { $eq: 1 } });
     if (tipoProfessor) {
       const id = await CursoRepository.incluir(curso);
-  
-      return new Mensagem('Aula incluido com sucesso!', {
+      
+      return new Mensagem('Curso incluido com sucesso!', {
         id,
       });
-    }
-
+    }    
   }
-
+  
   async alterar(id: number, curso: Curso) {
     const { nome, descricao, aulas, idProfessor } = curso;
     Validador.validarParametros([{ id }, { nome }, { descricao }, { aulas }, { idProfessor }]);
 
-    await CursoRepository.alterar({ id }, curso);
-
-    return new Mensagem('Aula alterado com sucesso!', {
-      id,
-    });
+    const existeCurso = await CursoRepository.obter({ nome: { $eq: nome } });
+    if (existeCurso) {
+      throw new BusinessException('Curso já existe');
+    }
+    
+    const tipoProfessor = await ProfessorRepository.obter({ tipo: { $eq: 1 } });
+    if (tipoProfessor) {
+      await CursoRepository.alterar({ id }, curso);
+  
+      return new Mensagem('Curso alterado com sucesso!', {
+        id,
+      });
+    }
   }
 
   async excluir(id: number) {

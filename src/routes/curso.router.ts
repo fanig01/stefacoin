@@ -23,6 +23,10 @@ router.post('/curso', async (req: Request, res: Response, next: NextFunction) =>
 
 router.put('/curso/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const decoded = jwt.verify(req.headers.authorization, config.auth.secret);
+    if (decoded.tipo !== 1) {
+      throw new BusinessException('Somente um professor pode alterar um curso.');
+    }
     const { id } = req.params;
     const mensagem: Mensagem = await new CursoController().alterar(Number(id), req.body);
     res.json(mensagem);
