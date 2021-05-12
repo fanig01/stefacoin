@@ -1,12 +1,19 @@
+import jwt from 'jsonwebtoken';
 import express, { NextFunction, Request, Response } from 'express';
 import CursoController from '../controllers/curso.controller';
 import Curso from '../entities/curso.entity';
+import config from '../utils/config/config';
+import BusinessException from '../utils/exceptions/business.exception';
 import Mensagem from '../utils/mensagem';
 
 const router = express.Router();
 
 router.post('/curso', async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const decoded = jwt.verify(req.headers.authorization, config.auth.secret);
+    if (decoded.tipo !== 1) {
+      throw new BusinessException('Somente um professor pode incluir um curso.');
+    }
     const mensagem: Mensagem = await new CursoController().incluir(req.body);
     res.json(mensagem);
   } catch (e) {

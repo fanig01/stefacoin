@@ -1,6 +1,8 @@
 import Curso from '../entities/curso.entity';
 import CursoRepository from '../repositories/curso.repository';
+import ProfessorRepository from '../repositories/professor.repository';
 import { FilterQuery } from '../utils/database/database';
+import BusinessException from '../utils/exceptions/business.exception';
 import Mensagem from '../utils/mensagem';
 import { Validador } from '../utils/utils';
 
@@ -17,16 +19,25 @@ export default class CursoController {
   async listar(filtro: FilterQuery<Curso> = {}): Promise<Curso[]> {
     return await CursoRepository.listar(filtro);
   }
-
+//verificar questão do idProfessor ser obrigatório e está sendo registrado manualmente
   async incluir(curso: Curso) {
     const { nome, descricao, aulas, idProfessor } = curso;
     Validador.validarParametros([{ nome }, { descricao }, { aulas }, { idProfessor }]);
 
-    const id = await CursoRepository.incluir(curso);
+    const existeCurso = await CursoRepository.obter({ nome: { $eq: nome } });
+    if (existeCurso) {
+      throw new BusinessException('Curso já existe');
+    }
 
-    return new Mensagem('Aula incluido com sucesso!', {
-      id,
-    });
+    const tipoProfessor = await ProfessorRepository.obter({ tipo: { $eq: 1 } });
+    if (tipoProfessor) {
+      const id = await CursoRepository.incluir(curso);
+  
+      return new Mensagem('Aula incluido com sucesso!', {
+        id,
+      });
+    }
+
   }
 
   async alterar(id: number, curso: Curso) {
