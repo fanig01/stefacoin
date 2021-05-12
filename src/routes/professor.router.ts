@@ -4,6 +4,7 @@ import ProfessorController from '../controllers/professor.controller';
 import Professor from '../entities/professor.entity';
 import Mensagem from '../utils/mensagem';
 import config from '../utils/config/config';
+import BusinessException from '../utils/exceptions/business.exception';
 
 const router = express.Router();
 
@@ -30,6 +31,10 @@ router.put('/professor/:id', async (req: Request, res: Response, next: NextFunct
 router.delete('/professor/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
+    const decoded = jwt.verify(req.headers.authorization, config.auth.secret);
+    if (decoded.tipo !== 1) {
+      throw new BusinessException('Somente um professor pode excluir outro professor.');
+    }
     const mensagem: Mensagem = await new ProfessorController().excluir(Number(id));
     res.json(mensagem);
   } catch (e) {
