@@ -1,7 +1,9 @@
+import jwt from 'jsonwebtoken';
 import express, { NextFunction, Request, Response } from 'express';
 import ProfessorController from '../controllers/professor.controller';
 import Professor from '../entities/professor.entity';
 import Mensagem from '../utils/mensagem';
+import config from '../utils/config/config';
 
 const router = express.Router();
 
@@ -17,7 +19,8 @@ router.post('/professor', async (req: Request, res: Response, next: NextFunction
 router.put('/professor/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
-    const mensagem: Mensagem = await new ProfessorController().alterar(Number(id), req.body);
+    const decoded = jwt.verify(req.headers.authorization, config.auth.secret);
+    const mensagem: Mensagem = await new ProfessorController().alterar(Number(id), req.body, decoded);
     res.json(mensagem);
   } catch (e) {
     next(e);

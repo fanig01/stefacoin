@@ -39,10 +39,18 @@ export default class ProfessorController {
     });
   }
 
-  async alterar(id: number, professor: Professor) {
+  async alterar(id: number, professor: Professor, uid: any) {
     const { nome, email, senha } = professor;
 
     Validador.validarParametros([{ id }, { nome }, { email }, { senha }]);
+
+    const existeProfessor = await ProfessorRepository.obter({ id: { $eq: id } });
+    if (!existeProfessor || existeProfessor.email !== uid.email) {
+      throw new BusinessException('Professor não existe ou não é permitido alterar os dados de outro professor.');
+    }
+    if (existeProfessor.email !== email) {
+      throw new BusinessException('Não é permitido alterar email.');
+    }
 
     await ProfessorRepository.alterar({ id }, professor);
 
