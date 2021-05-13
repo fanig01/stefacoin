@@ -72,6 +72,17 @@ export default class ProfessorController {
   async excluir(id: number) {
     Validador.validarParametros([{ id }]);
 
+    const professor = await ProfessorRepository.obterPorId(id);
+    if (!professor) {
+      throw new BusinessException('Professor não existe.');
+    }
+
+    const cursos = await CursoRepository.obter({ idProfessor: { $eq: professor.id } })
+
+    if (cursos) {
+      throw new BusinessException('Não é possível excluir um professor que está vinculado a algum curso.');
+    }
+
     await ProfessorRepository.excluir({ id });
 
     return new Mensagem('Professor excluido com sucesso!', {
