@@ -5,13 +5,14 @@ import Aula from '../models/aula.model';
 import Mensagem from '../utils/mensagem';
 import config from '../utils/config/config';
 import BusinessException from '../utils/exceptions/business.exception';
+import { TipoUsuario } from '../utils/tipo-usuario.enum';
 
 const router = express.Router();
 
 router.post('/aula', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const decoded = jwt.verify(req.headers.authorization, config.auth.secret);
-    if (decoded.tipo !== 1) {
+    if (decoded.tipo !== TipoUsuario.PROFESSOR) {
       throw new BusinessException('Somente um professor pode incluir uma aula.');
     }
     const mensagem: Mensagem = await new AulaController().incluir(req.body);
@@ -24,7 +25,7 @@ router.post('/aula', async (req: Request, res: Response, next: NextFunction) => 
 router.put('/aula/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const decoded = jwt.verify(req.headers.authorization, config.auth.secret);
-    if (decoded.tipo !== 1) {
+    if (decoded.tipo !== TipoUsuario.PROFESSOR) {
       throw new BusinessException('Somente um professor pode alterar uma aula.');
     }
     const { id } = req.params;
@@ -38,7 +39,7 @@ router.put('/aula/:id', async (req: Request, res: Response, next: NextFunction) 
 router.delete('/aula/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const decoded = jwt.verify(req.headers.authorization, config.auth.secret);
-    if (decoded.tipo !== 1) {
+    if (decoded.tipo !== TipoUsuario.PROFESSOR) {
       throw new BusinessException('Somente um professor pode excluir uma aula.');
     }
     const { id } = req.params;

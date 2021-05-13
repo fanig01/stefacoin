@@ -3,6 +3,7 @@ import AlunoRepository from '../repositories/aluno.repository';
 import { FilterQuery } from '../utils/database/database';
 import BusinessException from '../utils/exceptions/business.exception';
 import Mensagem from '../utils/mensagem';
+import { TipoUsuario } from '../utils/tipo-usuario.enum';
 import { Validador } from '../utils/utils';
 
 export default class AlunoController {
@@ -16,7 +17,7 @@ export default class AlunoController {
   }
 
   // #pegabandeira
-  async listar(filtro: FilterQuery<Aluno> = { tipo: { $eq: 2 } }): Promise<Aluno[]> {
+  async listar(filtro: FilterQuery<Aluno> = { tipo: { $eq: TipoUsuario.ALUNO } }): Promise<Aluno[]> {
     return await AlunoRepository.listar(filtro);
   }
 

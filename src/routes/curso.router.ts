@@ -5,13 +5,14 @@ import Curso from '../entities/curso.entity';
 import config from '../utils/config/config';
 import BusinessException from '../utils/exceptions/business.exception';
 import Mensagem from '../utils/mensagem';
+import { TipoUsuario } from '../utils/tipo-usuario.enum';
 
 const router = express.Router();
 
 router.post('/curso', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const decoded = jwt.verify(req.headers.authorization, config.auth.secret);
-    if (decoded.tipo !== 1) {
+    if (decoded.tipo !== TipoUsuario.PROFESSOR) {
       throw new BusinessException('Somente um professor pode incluir um curso.');
     }
     const mensagem: Mensagem = await new CursoController().incluir(req.body);
@@ -24,7 +25,7 @@ router.post('/curso', async (req: Request, res: Response, next: NextFunction) =>
 router.put('/curso/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const decoded = jwt.verify(req.headers.authorization, config.auth.secret);
-    if (decoded.tipo !== 1) {
+    if (decoded.tipo !== TipoUsuario.PROFESSOR) {
       throw new BusinessException('Somente um professor pode alterar um curso.');
     }
     const { id } = req.params;

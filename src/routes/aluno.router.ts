@@ -5,6 +5,7 @@ import Aluno from '../entities/aluno.entity';
 import config from '../utils/config/config';
 import Mensagem from '../utils/mensagem';
 import BusinessException from '../utils/exceptions/business.exception';
+import { TipoUsuario } from '../utils/tipo-usuario.enum';
 
 const router = express.Router();
 
@@ -32,7 +33,7 @@ router.delete('/aluno/:id', async (req: Request, res: Response, next: NextFuncti
   try {
     const { id } = req.params;
     const decoded = jwt.verify(req.headers.authorization, config.auth.secret);
-    if (decoded.tipo !== 1) {
+    if (decoded.tipo !== TipoUsuario.PROFESSOR) {
       throw new BusinessException('Somente um professor pode excluir um aluno.');
     }
     const mensagem: Mensagem = await new AlunoController().excluir(Number(id));
