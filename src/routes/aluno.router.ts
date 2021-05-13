@@ -18,6 +18,15 @@ router.post('/aluno', async (req: Request, res: Response, next: NextFunction) =>
   }
 });
 
+router.post('/matricula', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const mensagem: Mensagem = await new AlunoController().matricular(req.body);
+    res.json(mensagem);
+  } catch (e) {
+    next(e);
+  }
+});
+
 router.put('/aluno/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;

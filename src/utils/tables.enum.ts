@@ -3,4 +3,5 @@ export enum Tables {
   PROFESSOR = 'PROFESSOR',
   CURSO = 'CURSO',
   USUARIO = 'USUARIO',
+  ALUNOCURSO = 'ALUNOCURSO'
 }

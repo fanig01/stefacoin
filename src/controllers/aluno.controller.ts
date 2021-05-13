@@ -1,4 +1,6 @@
+import AlunoCurso from '../entities/aluno-curso.entity';
 import Aluno from '../entities/aluno.entity';
+import AlunoCursoRepository from '../repositories/aluno-curso.repository';
 import AlunoRepository from '../repositories/aluno.repository';
 import { FilterQuery } from '../utils/database/database';
 import BusinessException from '../utils/exceptions/business.exception';
@@ -24,7 +26,7 @@ export default class AlunoController {
   // #pegabandeira
   async incluir(aluno: Aluno) {
     const { nome, formacao, idade, email, senha } = aluno;
-
+    
     Validador.validarParametros([{ nome }, { formacao }, { idade }, { email }, { senha }]);
     
     const existeAluno = await AlunoRepository.obter({ email: { $eq: email } });
@@ -37,6 +39,21 @@ export default class AlunoController {
     });
   }
 
+  async matricular(alunoCurso: AlunoCurso) {
+    const { idAluno, idCurso } = alunoCurso;
+    Validador.validarParametros([{ idAluno }, { idCurso }]);
+
+    const existeCurso = await AlunoCursoRepository.obter({ idCurso: { $eq: idCurso } });
+    if (existeCurso) {
+      throw new BusinessException('Aluno já está matriculado no curso.');
+    }
+
+    const id = await AlunoCursoRepository.incluir(alunoCurso);
+    return new Mensagem('Aluno matriculado com sucesso!', {
+      id,
+    });
+  }
+  
   async alterar(id: number, aluno: Aluno, uid: any) {
     const { nome, formacao, idade, email, senha } = aluno;
     Validador.validarParametros([{ id }, { nome }, { formacao }, { idade }, { email }, { senha }]);
@@ -61,4 +78,5 @@ export default class AlunoController {
       id,
     });
   }
+
 }
