@@ -1,4 +1,5 @@
 import Curso from '../entities/curso.entity';
+import AlunoCursoRepository from '../repositories/aluno-curso.repository';
 import CursoRepository from '../repositories/curso.repository';
 import { FilterQuery } from '../utils/database/database';
 import BusinessException from '../utils/exceptions/business.exception';
@@ -18,7 +19,7 @@ export default class CursoController {
   async listar(filtro: FilterQuery<Curso> = {}): Promise<Curso[]> {
     return await CursoRepository.listar(filtro);
   }
-//verificar questão do idProfessor ser obrigatório e está sendo registrado manualmente
+
   async incluir(curso: Curso) {
     const { nome, descricao, aulas, idProfessor } = curso;
     Validador.validarParametros([{ nome }, { descricao }, { aulas }, { idProfessor }]);
@@ -53,6 +54,13 @@ export default class CursoController {
 
   async excluir(id: number) {
     Validador.validarParametros([{ id }]);
+
+    const curso = await CursoRepository.obterPorId(id);
+
+    const existeMatricula = await AlunoCursoRepository.obter({ idCurso: { $eq: curso.id } });
+    if (existeMatricula) {
+      throw new BusinessException('Não é possível excluir. Curso possui aluno(s) matriculado(s).');
+    }
 
     await CursoRepository.excluir({ id });
 

@@ -43,8 +43,8 @@ export default class AlunoController {
     const { idAluno, idCurso } = alunoCurso;
     Validador.validarParametros([{ idAluno }, { idCurso }]);
 
-    const existeCurso = await AlunoCursoRepository.obter({ idCurso: { $eq: idCurso } });
-    if (existeCurso) {
+    const existeMatricula = await AlunoCursoRepository.obter({ idCurso: { $eq: idCurso }, idAluno: { $eq: idAluno } });
+    if (existeMatricula) {
       throw new BusinessException('Aluno já está matriculado no curso.');
     }
 
@@ -73,6 +73,13 @@ export default class AlunoController {
 
   async excluir(id: number) {
     Validador.validarParametros([{ id }]);
+    
+    const aluno = await AlunoRepository.obterPorId(id);
+
+    const existeMatricula = await AlunoCursoRepository.obter({ idAluno: { $eq: aluno.id } });
+    if (existeMatricula) {
+      throw new BusinessException('Aluno está matriculado em um curso e não pode ser excluído.');
+    }
     await AlunoRepository.excluir({ id });
     return new Mensagem('Aluno excluido com sucesso!', {
       id,
