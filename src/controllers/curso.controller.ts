@@ -1,6 +1,5 @@
 import Curso from '../entities/curso.entity';
 import CursoRepository from '../repositories/curso.repository';
-import ProfessorRepository from '../repositories/professor.repository';
 import { FilterQuery } from '../utils/database/database';
 import BusinessException from '../utils/exceptions/business.exception';
 import Mensagem from '../utils/mensagem';
@@ -26,17 +25,14 @@ export default class CursoController {
 
     const existeCurso = await CursoRepository.obter({ nome: { $eq: nome } });
     if (existeCurso) {
-      throw new BusinessException('Curso já existe');
+      throw new BusinessException('Curso já existe.');
     }
-    
-    const tipoProfessor = await ProfessorRepository.obter({ tipo: { $eq: 1 } });
-    if (tipoProfessor) {
-      const id = await CursoRepository.incluir(curso);
-      
-      return new Mensagem('Curso incluido com sucesso!', {
-        id,
-      });
-    }    
+
+    const id = await CursoRepository.incluir(curso);
+
+    return new Mensagem('Curso incluido com sucesso!', {
+      id,
+    });
   }
   
   async alterar(id: number, curso: Curso) {
@@ -47,15 +43,12 @@ export default class CursoController {
     if (existeCurso) {
       throw new BusinessException('Curso já existe');
     }
-    
-    const tipoProfessor = await ProfessorRepository.obter({ tipo: { $eq: 1 } });
-    if (tipoProfessor) {
-      await CursoRepository.alterar({ id }, curso);
-  
-      return new Mensagem('Curso alterado com sucesso!', {
-        id,
-      });
-    }
+
+    await CursoRepository.alterar({ id }, curso);
+
+    return new Mensagem('Curso alterado com sucesso!', {
+      id,
+    });
   }
 
   async excluir(id: number) {
