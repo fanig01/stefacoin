@@ -1,4 +1,5 @@
 import Professor from '../entities/professor.entity';
+import CursoRepository from '../repositories/curso.repository';
 import ProfessorRepository from '../repositories/professor.repository';
 import { FilterQuery } from '../utils/database/database';
 import BusinessException from '../utils/exceptions/business.exception';
@@ -18,8 +19,16 @@ export default class ProfessorController {
   }
 
   // #pegabandeira
-  async listar(filtro: FilterQuery<Professor> = { tipo: { $eq: TipoUsuario.PROFESSOR} }): Promise<Professor[]> {
-    return await ProfessorRepository.listar(filtro);
+  async listar(filtro: FilterQuery<Professor> = { tipo: { $eq: TipoUsuario.PROFESSOR } }): Promise<Professor[]> {
+    let professores = await ProfessorRepository.listar(filtro);
+    professores = await Promise.all(professores.map(async (professor) => {
+      const cursos = await CursoRepository.listar({ idProfessor: { $eq: professor.id }});
+      return <Professor>{
+        ...professor,
+        cursos: cursos
+      }
+    }))
+    return await professores;
   }
 
   // #pegabandeira
