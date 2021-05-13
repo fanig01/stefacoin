@@ -36,8 +36,17 @@ export default class AlunoController {
     });
   }
 
-  async alterar(id: number, aluno: Aluno) {
-    Validador.validarParametros([{ id }]);
+  async alterar(id: number, aluno: Aluno, uid: any) {
+    const { nome, formacao, idade, email, senha } = aluno;
+    Validador.validarParametros([{ id }, { nome }, { formacao }, { idade }, { email }, { senha }]);
+    const existeAluno = await AlunoRepository.obter({ id: { $eq: id } });
+    if (!existeAluno || (existeAluno.email !== uid.email && uid.tipo === 2)) {
+      throw new BusinessException('Aluno não existe ou não é permitido alterar os dados de outro aluno.');
+    }
+    if (existeAluno.email !== email) {
+      throw new BusinessException('Não é permitido alterar email.');
+    }
+
     await AlunoRepository.alterar({ id }, aluno);
     return new Mensagem('Aluno alterado com sucesso!', {
       id,
