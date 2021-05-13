@@ -1,5 +1,7 @@
 import Aula from '../models/aula.model';
 import CursoRepository from '../repositories/curso.repository';
+import ProfessorRepository from '../repositories/professor.repository';
+import BusinessException from '../utils/exceptions/business.exception';
 import Mensagem from '../utils/mensagem';
 import { Validador } from '../utils/utils';
 
@@ -13,6 +15,9 @@ export default class AulaController {
   async listar(idCurso: number): Promise<Aula[]> {
     Validador.validarParametros([{ idCurso }]);
     const curso = await CursoRepository.obterPorId(idCurso);
+    if (!curso) {
+      throw new BusinessException('Curso não existe.');
+    }
     return curso.aulas;
   }
 
@@ -21,6 +26,15 @@ export default class AulaController {
     Validador.validarParametros([{ nome }, { duracao }, { topicos }, { idCurso }]);
 
     const curso = await CursoRepository.obterPorId(idCurso);
+    if (!curso) {
+      throw new BusinessException('Curso não existe.');
+    }
+
+    const existeAula = curso.aulas.filter(aula => aula.nome === nome);
+
+    if (existeAula.length > 0) {
+      throw new BusinessException('Nome da aula já existe.');
+    }
 
     const idAnterior = curso.aulas[curso.aulas.length - 1].id;
     aula.id = idAnterior ? idAnterior + 1 : 1;
@@ -39,11 +53,20 @@ export default class AulaController {
     Validador.validarParametros([{ id }, { idCurso }, { nome }, { duracao }, { topicos }]);
 
     const curso = await CursoRepository.obterPorId(idCurso);
+    if (!curso) {
+      throw new BusinessException('Curso não existe.');
+    }
 
-    curso.aulas.map((a) => {
-      if (a.id === id) {
-        Object.keys(aula).forEach((k) => {
-          a[k] = aula[k];
+    const existeAula = curso.aulas.filter(aula => aula.id === id);
+
+    if (existeAula.length === 0) {
+      throw new BusinessException('Aula não existe.');
+    }
+
+    curso.aulas.map((aulaTemp) => {
+      if (aulaTemp.id === id) {
+        Object.keys(aula).forEach((key) => {
+          aulaTemp[key] = aula[key];
         });
       }
     });
@@ -60,8 +83,17 @@ export default class AulaController {
     Validador.validarParametros([{ id }, { idCurso }]);
 
     const curso = await CursoRepository.obterPorId(idCurso);
+    if (!curso) {
+      throw new BusinessException('Curso não existe.');
+    }
 
-    curso.aulas = curso.aulas.filter((a) => a.id !== id);
+    const existeAula = curso.aulas.filter(aula => aula.id === id);
+
+    if (existeAula.length === 0) {
+      throw new BusinessException('Aula não existe.');
+    }
+
+    curso.aulas = curso.aulas.filter((aula) => aula.id !== id);
 
     await CursoRepository.alterar({ id: idCurso }, curso);
 
