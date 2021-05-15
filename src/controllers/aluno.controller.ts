@@ -58,7 +58,7 @@ export default class AlunoController {
     const { nome, formacao, idade, email, senha } = aluno;
     Validador.validarParametros([{ id }, { nome }, { formacao }, { idade }, { email }, { senha }]);
     const existeAluno = await AlunoRepository.obter({ id: { $eq: id } });
-    if (!existeAluno || (existeAluno.email !== uid.email && uid.tipo === 2)) {
+    if (!existeAluno || (existeAluno.email !== uid.email && uid.tipo === TipoUsuario.ALUNO)) {
       throw new BusinessException('Aluno não existe ou não é permitido alterar os dados de outro aluno.');
     }
     if (existeAluno.email !== email) {
